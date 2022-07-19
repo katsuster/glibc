@@ -1,0 +1,63 @@
+#!/usr/bin/make -f
+
+%:
+	PATH=$(PREFIX)/bin:$(PATH) \
+	    dh $@
+
+build_dir = build
+
+PREFIX = /opt/riscv
+
+PWD := $(shell pwd)
+PKGVER := $(shell head -1 PKGVERSION)
+
+define configure_macro
+	$(eval PROJ = $(1))
+	mkdir -p $(build_dir)_$(PROJ) && \
+	cd $(build_dir)_$(PROJ) && \
+	../configure \
+	  --host=riscv64-unknown-linux-gnu \
+	  --prefix=/usr \
+	  --with-headers=$(PREFIX)/sysroot/usr/include \
+	  --with-sysroot=$(PREFIX)/sysroot \
+	  CFLAGS="-O2 -mcmodel=medany" \
+	  CXXFLAGS="-O2 -mcmodel=medany"
+endef
+
+define build_macro
+	$(eval PROJ = $(1))
+	dh_auto_build -B$(build_dir)_$(PROJ) --parallel
+endef
+
+define install_macro
+	$(eval PROJ = $(1))
+	$(MAKE) -C $(build_dir)_$(PROJ) install_root=$(PWD)/debian/$(PROJ)/$(PREFIX)/sysroot install
+endef
+
+define shlibdeps_macro
+	$(eval PROJ = $(1))
+	$(eval SDIR = $(PWD)/debian/$(PROJ)/$(PREFIX)/sysroot)
+	dh_shlibdeps -l$(SDIR)/lib:$(SDIR)/lib64/lp64d
+endef
+
+override_dh_auto_clean:
+
+override_dh_autoreconf:
+
+override_dh_auto_configure:
+	$(call configure_macro,riscv64-linux-glibc)
+
+override_dh_auto_build:
+	$(call build_macro,riscv64-linux-glibc)
+
+# Ignore tests
+override_dh_auto_test:
+
+override_dh_auto_install:
+	$(call install_macro,riscv64-linux-glibc)
+
+# Ignore strip
+override_dh_strip:
+
+override_dh_shlibdeps:
+	$(call shlibdeps_macro,riscv64-linux-glibc)
