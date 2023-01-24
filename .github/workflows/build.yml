@@ -7,10 +7,10 @@ on:
       - riscv-glibc-*
 env:
   URL_PACKAGE: https://github.com/katsuster
-  DEB_BINUTILS: 2.38-2
-  DEB_GCC: 12.0.1-rvv-2
-  DEB_LINUX: 5.10.0-2
-  VER_GLIBC: 2.35
+  DEB_BINUTILS: 2.39-1
+  DEB_GCC: 12.0.1-rvv-3
+  DEB_LINUX: 5.10.0-3
+  VER_GLIBC: 2.36
   DIR_SRC: .src
   DIR_PACKAGE: .pkg
 
@@ -22,22 +22,22 @@ jobs:
       SECT: release
     steps:
       - name: "clone"
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: "prereq"
         run: |
           ./pkg_script/ubuntu_setup.sh
-          curl -L ${{ env.URL_PACKAGE }}/riscv-binutils-gdb/releases/download/riscv-binutils-${{ env.DEB_BINUTILS }}/riscv64-linux-binutils_${{ env.DEB_BINUTILS }}_amd64.deb > riscv64-linux-binutils.deb
-          curl -L ${{ env.URL_PACKAGE }}/riscv-gcc/releases/download/riscv-gcc-${{ env.DEB_GCC }}/riscv64-linux-gcc-stage1_${{ env.DEB_GCC }}_amd64.deb > riscv64-linux-gcc-stage1.deb
-          curl -L ${{ env.URL_PACKAGE }}/linux-headers/releases/download/riscv-linux-headers-${{ env.DEB_LINUX }}/riscv64-linux-headers_${{ env.DEB_LINUX }}_amd64.deb > riscv64-linux-headers.deb
-          sudo dpkg -i riscv64-linux-binutils.deb
-          sudo dpkg -i riscv64-linux-gcc-stage1.deb
-          sudo dpkg -i riscv64-linux-headers.deb
+          curl -L ${{ env.URL_PACKAGE }}/binutils-gdb/releases/download/riscv-binutils-${{ env.DEB_BINUTILS }}/riscv64-linux-glibc-binutils_${{ env.DEB_BINUTILS }}_amd64.deb > riscv64-linux-glibc-binutils.deb
+          curl -L ${{ env.URL_PACKAGE }}/riscv-gcc/releases/download/riscv-gcc-${{ env.DEB_GCC }}/riscv64-linux-glibc-gcc-stage1_${{ env.DEB_GCC }}_amd64.deb > riscv64-linux-glibc-gcc-stage1.deb
+          curl -L ${{ env.URL_PACKAGE }}/linux-headers/releases/download/riscv-linux-headers-${{ env.DEB_LINUX }}/riscv64-linux-glibc-headers_${{ env.DEB_LINUX }}_amd64.deb > riscv64-linux-glibc-headers.deb
+          sudo dpkg -i riscv64-linux-glibc-binutils.deb
+          sudo dpkg -i riscv64-linux-glibc-gcc-stage1.deb
+          sudo dpkg -i riscv64-linux-glibc-headers.deb
       - name: "package"
         run: |
           PROJ=riscv64-linux-glibc VER=${{ env.VER_GLIBC }} \
             ./pkg_script/ubuntu_package.sh
       - name: "upload"
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: glibc.deb
           path: pkg_${{ env.PKG_TARGET }}/riscv64-*
