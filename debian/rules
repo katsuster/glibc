@@ -11,33 +11,50 @@ PREFIX = /opt/riscv
 PWD := $(shell pwd)
 PKGVER := $(shell head -1 PKGVERSION)
 
+MARCH_LIST   ?= rv64gc rv64imac rv32gc rv32imac
+MABI_LIST    ?= lp64d lp64 ilp32d ilp32
+MLIB_LIST    ?= lib64 lib64 lib32 lib32
+MARCH_EXT    ?=
+
 define configure_macro
-	$(eval PROJ = $(1))
-	mkdir -p $(build_dir)_$(PROJ) && \
-	cd $(build_dir)_$(PROJ) && \
+	$(eval PROJ  = $(1))
+	$(eval MARCH = $(word $(2),$(MARCH_LIST))$(MARCH_EXT))
+	$(eval MABI  = $(word $(2),$(MABI_LIST)))
+	mkdir -p $(build_dir)_$(MARCH)_$(PROJ) && \
+	cd $(build_dir)_$(MARCH)_$(PROJ) && \
 	../configure \
 	  --host=riscv64-unknown-linux-gnu \
 	  --prefix=/usr \
+	  --disable-multilib \
 	  --with-headers=$(PREFIX)/sysroot/usr/include \
 	  --with-sysroot=$(PREFIX)/sysroot \
-	  CFLAGS="-O2 -mcmodel=medany" \
-	  CXXFLAGS="-O2 -mcmodel=medany"
+	  CC="riscv64-unknown-linux-gnu-gcc -march=$(MARCH) -mabi=$(MABI)" \
+	  CFLAGS="-O2 -mcmodel=medany"
 endef
 
 define build_macro
-	$(eval PROJ = $(1))
-	dh_auto_build -B$(build_dir)_$(PROJ) --parallel
+	$(eval PROJ  = $(1))
+	$(eval MARCH = $(word $(2),$(MARCH_LIST))$(MARCH_EXT))
+	dh_auto_build -B$(build_dir)_$(MARCH)_$(PROJ) --parallel
 endef
 
 define install_macro
-	$(eval PROJ = $(1))
-	$(MAKE) -C $(build_dir)_$(PROJ) install_root=$(PWD)/debian/$(PROJ)/$(PREFIX)/sysroot install
+	$(eval PROJ  = $(1))
+	$(eval MARCH = $(word $(2),$(MARCH_LIST))$(MARCH_EXT))
+	$(eval SDIR  = $(PWD)/debian/$(PROJ)/$(PREFIX)/sysroot)
+	$(MAKE) -C $(build_dir)_$(MARCH)_$(PROJ) install_root=$(SDIR) install
+	rm -r $(SDIR)/sbin
+	rm -r $(SDIR)/usr/sbin
+	rm -r $(SDIR)/usr/bin
+	rm -r $(SDIR)/usr/libexec/getconf
 endef
 
 define shlibdeps_macro
-	$(eval PROJ = $(1))
-	$(eval SDIR = $(PWD)/debian/$(PROJ)/$(PREFIX)/sysroot)
-	dh_shlibdeps -l$(SDIR)/lib:$(SDIR)/lib64/lp64d
+	$(eval PROJ  = $(1))
+	$(eval MABI  = $(word $(2),$(MABI_LIST)))
+	$(eval MLIB  = $(word $(2),$(MLIB_LIST)))
+	$(eval SDIR  = $(PWD)/debian/$(PROJ)/$(PREFIX)/sysroot)
+	###dh_shlibdeps -l$(SDIR)/lib:$(SDIR)/$(MLIB)/$(MABI)
 endef
 
 override_dh_auto_clean:
@@ -45,19 +62,31 @@ override_dh_auto_clean:
 override_dh_autoreconf:
 
 override_dh_auto_configure:
-	$(call configure_macro,riscv64-linux-glibc)
+	$(call configure_macro,riscv64-linux-glibc,1)
+	$(call configure_macro,riscv64-linux-glibc,2)
+	$(call configure_macro,riscv64-linux-glibc,3)
+	$(call configure_macro,riscv64-linux-glibc,4)
 
 override_dh_auto_build:
-	$(call build_macro,riscv64-linux-glibc)
+	$(call build_macro,riscv64-linux-glibc,1)
+	$(call build_macro,riscv64-linux-glibc,2)
+	$(call build_macro,riscv64-linux-glibc,3)
+	$(call build_macro,riscv64-linux-glibc,4)
 
 # Ignore tests
 override_dh_auto_test:
 
 override_dh_auto_install:
-	$(call install_macro,riscv64-linux-glibc)
+	$(call install_macro,riscv64-linux-glibc,1)
+	$(call install_macro,riscv64-linux-glibc,2)
+	$(call install_macro,riscv64-linux-glibc,3)
+	$(call install_macro,riscv64-linux-glibc,4)
 
 # Ignore strip
 override_dh_strip:
 
 override_dh_shlibdeps:
-	$(call shlibdeps_macro,riscv64-linux-glibc)
+	$(call shlibdeps_macro,riscv64-linux-glibc,1)
+	$(call shlibdeps_macro,riscv64-linux-glibc,2)
+	$(call shlibdeps_macro,riscv64-linux-glibc,3)
+	$(call shlibdeps_macro,riscv64-linux-glibc,4)
