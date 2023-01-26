@@ -3,7 +3,7 @@ Section: devel
 Priority: optional
 Maintainer: Katsuhiro Suzuki <katsuster@katsuster.net>
 Standards-Version: 3.9.7
-Build-Depends: riscv64-linux-headers, debhelper (>= 9)
+Build-Depends: riscv64-linux-glibc-headers, debhelper (>= 9)
 
 Package: riscv64-linux-glibc
 Architecture: amd64
