@@ -7,10 +7,10 @@ on:
       - riscv-glibc-*
 env:
   URL_PACKAGE: https://github.com/katsuster
-  DEB_BINUTILS: 2.39-1
-  DEB_GCC: 12.0.1-rvv-3
-  DEB_LINUX: 5.10.0-3
-  VER_GLIBC: 2.36
+  VER_BINUTILS: 2.40.90-1
+  VER_GCC: 12.0.1-rvv-3
+  VER_LINUX: 5.10.0-3
+  VER_GLIBC: 2.38
   DIR_SRC: .src
   DIR_PACKAGE: .pkg
 
@@ -26,9 +26,9 @@ jobs:
       - name: "prereq"
         run: |
           ./pkg_script/ubuntu_setup.sh
-          curl -L ${{ env.URL_PACKAGE }}/binutils-gdb/releases/download/riscv-binutils-${{ env.DEB_BINUTILS }}/riscv64-linux-glibc-binutils_${{ env.DEB_BINUTILS }}_amd64.deb > riscv64-linux-glibc-binutils.deb
-          curl -L ${{ env.URL_PACKAGE }}/riscv-gcc/releases/download/riscv-gcc-${{ env.DEB_GCC }}/riscv64-linux-glibc-gcc-stage1_${{ env.DEB_GCC }}_amd64.deb > riscv64-linux-glibc-gcc-stage1.deb
-          curl -L ${{ env.URL_PACKAGE }}/linux-headers/releases/download/riscv-linux-headers-${{ env.DEB_LINUX }}/riscv64-linux-glibc-headers_${{ env.DEB_LINUX }}_amd64.deb > riscv64-linux-glibc-headers.deb
+          curl -L ${{ env.URL_PACKAGE }}/binutils-gdb/releases/download/riscv-binutils-${{ env.VER_BINUTILS }}/riscv64-linux-glibc-binutils_${{ env.VER_BINUTILS }}_amd64.deb > riscv64-linux-glibc-binutils.deb
+          curl -L ${{ env.URL_PACKAGE }}/riscv-gcc/releases/download/riscv-gcc-${{ env.VER_GCC }}/riscv64-linux-glibc-gcc-stage1_${{ env.VER_GCC }}_amd64.deb > riscv64-linux-glibc-gcc-stage1.deb
+          curl -L ${{ env.URL_PACKAGE }}/linux-headers/releases/download/riscv-linux-headers-${{ env.VER_LINUX }}/riscv64-linux-glibc-headers_${{ env.VER_LINUX }}_amd64.deb > riscv64-linux-glibc-headers.deb
           sudo dpkg -i riscv64-linux-glibc-binutils.deb
           sudo dpkg -i riscv64-linux-glibc-gcc-stage1.deb
           sudo dpkg -i riscv64-linux-glibc-headers.deb
