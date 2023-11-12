@@ -6,7 +6,7 @@ This document describes how to make debian packages by manually.
 PKG_TARGET=ubuntu20 \
 SECT=release \
 PROJ=riscv64-linux-glibc \
-VER=2.36 \
+VER=2.38 \
   ./pkg_script/ubuntu_package.sh
 
 
